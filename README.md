@@ -1,3 +1,7 @@
 # pytorch-yolov3-win
-start:
-  python detect.py
+step1:Download weights  
+      link:
+
+step2:python detect.py
+
+step:--det find your result
