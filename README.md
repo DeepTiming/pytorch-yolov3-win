@@ -1,2 +1,3 @@
 # pytorch-yolov3-win
-welcome
+start:
+  python detect.py
