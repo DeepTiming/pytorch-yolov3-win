@@ -1,0 +1,5 @@
+det/
+.idea/
+*.weights
+*.avi
+__pycache__/

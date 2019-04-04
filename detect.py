@@ -40,6 +40,7 @@ def arg_parse():
     parser.add_argument("--reso", dest = 'reso', help = 
                         "Input resolution of the network. Increase to increase accuracy. Decrease to increase speed",
                         default = "416", type = str)
+    parser.add_argument("--video",dest = 'video',help = "Produce video or not",default = "False",type =bool)
     
     return parser.parse_args()
     
@@ -52,15 +53,20 @@ start = 0
 CUDA = torch.cuda.is_available()
 
 
-
 num_classes = 11
 classes = load_classes("data/voc.names")
 
-
+if args.video:
+    fps = 1
+    size = (500, 500)
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    videoname = 'inception.avi'
+    videoWriter = cv2.VideoWriter(videoname, fourcc, fps, size)
 
 #Set up the neural network
 print("Loading network.....")
 model = Darknet(args.cfgfile)
+#print(model)
 model.load_weights(args.weightsfile)
 print("Network successfully loaded")
 
@@ -190,11 +196,11 @@ def write(x, results):
     cls = int(x[-1])
     color = random.choice(colors)
     label = "{0}".format(classes[cls])
-    cv2.rectangle(img, c1, c2,color, 1)
-    t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
+    cv2.rectangle(img, c1, c2,color, 5)
+    t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 3 , 3)[0]
     c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
     cv2.rectangle(img, c1, c2,color, -1)
-    cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+    cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 3, [225,255,255], 3);
     return img
 
 
@@ -205,6 +211,12 @@ det_names = pd.Series(imlist).apply(lambda x: "{}\det_{}".format(args.det,x.spli
 print(imlist)
 print(det_names)
 list(map(cv2.imwrite, det_names, loaded_ims))
+
+if args.video:
+    for dstImage in loaded_ims:
+        dstImage = cv2.resize(dstImage, size)
+        videoWriter.write(dstImage)
+
 
 
 end = time.time()
@@ -221,6 +233,8 @@ print("{:25s}: {:2.3f}".format("Drawing Boxes", end - draw))
 print("{:25s}: {:2.3f}".format("Average time_per_img", (end - load_batch)/len(imlist)))
 print("----------------------------------------------------------")
 
+if args.video:
+    videoWriter.release()
 
 torch.cuda.empty_cache()
     
