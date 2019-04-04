@@ -5,3 +5,5 @@ step1:Download weights
 step2:python detect.py
 
 step:--det find your result
+
+if you want produce video directly, "python detect.py --video True" in your CMD or PowerShell and you will find an "inception.avi" in your root dir
